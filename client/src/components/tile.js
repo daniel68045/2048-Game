@@ -6,6 +6,7 @@ export default class Tile {
    * @param {number} col - The column position of the tile.
    */
   constructor(value = 2, row, col) {
+    console.log(`Creating Tile - Value: ${value}, Row: ${row}, Col: ${col}`);
     this.value = value; // The value of the tile (e.g., 2, 4, 8)
     this.row = row; // The row position of the tile
     this.col = col; // The column position of the tile
