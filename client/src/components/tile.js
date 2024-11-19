@@ -22,16 +22,10 @@ export default class Tile {
     this.element = document.createElement("div");
     this.element.classList.add("tile");
     this.element.textContent = this.value;
-    // Add debugging logs
-    console.log(
-      `Tile value: ${this.value}, Row: ${this.row}, Col: ${this.col}`
-    );
-    // Set custom CSS variables
+    // Set custom CSS variables for positioning
     this.element.style.setProperty("--row", this.row);
     this.element.style.setProperty("--col", this.col);
-    // Add tile-specific class
     this.element.classList.add(`tile-${this.value}`);
-    // Append to container
     container.appendChild(this.element);
   }
 
