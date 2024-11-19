@@ -31,3 +31,37 @@ body {
   font-weight: bold;
   color: #776e65;
 }
+
+/* General tile styling */
+.tile {
+  position: absolute;
+  width: calc(100% / 4 - 15px); /* Adjust size for a 4x4 grid */
+  height: calc(100% / 4 - 15px);
+  background-color: #eee4da;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #776e65;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+/* Positioning tiles based on row and column */
+.tile {
+  transform: translate(calc(var(--col) * 100%), calc(var(--row) * 100%));
+}
+
+/* Styling for different values */
+.tile-2 {
+  background-color: #eee4da;
+}
+.tile-4 {
+  background-color: #ede0c8;
+}
+.tile-8 {
+  background-color: #f2b179;
+  color: #f9f6f2;
+}
+/* Add more styles for higher values as needed */
