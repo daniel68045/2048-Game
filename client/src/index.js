@@ -2,6 +2,7 @@ import Grid from "./components/grid.js";
 import Tile from "./components/tile.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOMContentLoaded fired!");
   // Initialize the grid
   const gameGrid = new Grid(4);
   // Render the grid into the container with the ID "game-container"
