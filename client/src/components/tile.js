@@ -18,17 +18,19 @@ export default class Tile {
    * @param {HTMLElement} container - The container element to render the tile in.
    */
   renderTile(container) {
-    // Create a new tile element
     this.element = document.createElement("div");
     this.element.classList.add("tile");
     this.element.textContent = this.value;
+    // Add debugging logs
+    console.log(
+      `Tile value: ${this.value}, Row: ${this.row}, Col: ${this.col}`
+    );
+    // Set custom CSS variables
     this.element.style.setProperty("--row", this.row);
     this.element.style.setProperty("--col", this.col);
-
-    // Apply styling based on the tile value
+    // Add tile-specific class
     this.element.classList.add(`tile-${this.value}`);
-
-    // Append the tile to the container
+    // Append to container
     container.appendChild(this.element);
   }
 

@@ -38,10 +38,9 @@ body {
   position: absolute;
   width: calc(100% / 4 - 15px); /* Adjust size for a 4x4 grid */
   height: calc(100% / 4 - 15px);
-  transform: translate(
-    calc(var(--col) * 100%),
-    calc(var(--row) * 100%)
-  ); /* Positioning */
+  transform: translate(calc(var(--col) * 100%), calc(var(--row) * 100%));
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  /* Positioning */
   background-color: #eee4da;
   border-radius: 5px;
   display: flex;
@@ -50,7 +49,6 @@ body {
   font-size: 24px;
   font-weight: bold;
   color: #776e65;
-  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 /* Styling for different values */
