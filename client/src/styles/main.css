@@ -11,6 +11,7 @@ body {
 }
 
 #game-container {
+  position: relative;
   width: 400px;
   height: 400px;
   background-color: #bbada0; /* Grid background color */
@@ -37,6 +38,10 @@ body {
   position: absolute;
   width: calc(100% / 4 - 15px); /* Adjust size for a 4x4 grid */
   height: calc(100% / 4 - 15px);
+  transform: translate(
+    calc(var(--col) * 100%),
+    calc(var(--row) * 100%)
+  ); /* Positioning */
   background-color: #eee4da;
   border-radius: 5px;
   display: flex;
@@ -46,11 +51,6 @@ body {
   font-weight: bold;
   color: #776e65;
   transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-/* Positioning tiles based on row and column */
-.tile {
-  transform: translate(calc(var(--col) * 100%), calc(var(--row) * 100%));
 }
 
 /* Styling for different values */
