@@ -42,7 +42,7 @@ body {
     calc(var(--row) * 100%)
   ); /* Correctly align tiles to rows/columns */
   transition: transform 0.2s ease, background-color 0.2s ease;
-  background-color: #eee4da;
+  background-color: #000000;
   border-radius: 5px;
   display: flex;
   justify-content: center;
