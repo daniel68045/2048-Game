@@ -7,27 +7,18 @@ export default class GameLogic {
   }
 
   init() {
-    // Render the grid into the container with the ID "game-container"
     this.grid.renderGrid("game-container");
 
-    // Get the grid container
     const container = document.getElementById("game-container");
 
-    console.log("Initial grid state:");
-    this.grid.logGrid();
-    // Add a few tiles to test the rendering
-    // const tile1 = new Tile(2, 0, 0); // Tile at row 0, col 0 with value 2
-    // const tile2 = new Tile(4, 1, 1); // Tile at row 1, col 1 with value 4
-    // const tile3 = new Tile(8, 0, 2);
-    // tile1.renderTile(container);
-    // tile2.renderTile(container);
-    // tile3.renderTile(container);
-
-    // Add random tile
     this.addRandomTile(container);
     this.addRandomTile(container);
 
     this.setupEventListeners();
+
+    document.getElementById("restart-button").addEventListener("click", () => {
+      this.restartGame();
+    });
   }
 
   setupEventListeners() {
@@ -35,98 +26,246 @@ export default class GameLogic {
   }
 
   handleKeyPress(event) {
-    // List of valid keys that should trigger grid actions
     const validKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
 
-    // Check if the pressed key is one of the valid keys
     if (validKeys.includes(event.key)) {
-      event.preventDefault(); // Prevent the default arrow key actions (like scrolling)
+      event.preventDefault();
 
+      let moved = false;
       switch (event.key) {
         case "ArrowUp":
-          this.moveUp();
+          moved = this.moveUp();
           break;
         case "ArrowDown":
-          this.moveDown();
+          moved = this.moveDown();
           break;
         case "ArrowLeft":
-          this.moveLeft();
+          moved = this.moveLeft();
           break;
         case "ArrowRight":
-          this.moveRight();
+          moved = this.moveRight();
           break;
       }
 
-      // Only add a random tile and re-render if an arrow key was pressed
-      this.addRandomTile();
-      this.grid.renderGrid("game-container");
+      if (moved) {
+        this.addRandomTile();
+        this.grid.renderGrid();
+
+        if (!this.canMove()) {
+          setTimeout(() => {
+            this.showGameOverModal();
+          }, 1000);
+        }
+      }
     }
   }
 
+  showGameOverModal() {
+    const modal = document.getElementById("game-over-modal");
+    modal.classList.remove("hidden");
+  }
+
+  restartGame() {
+    const modal = document.getElementById("game-over-modal");
+    modal.classList.add("hidden");
+
+    const container = document.getElementById("game-container");
+    container.innerHTML = "";
+
+    this.grid = new Grid(4);
+    this.init();
+  }
+
   moveLeft() {
-    let hasChanged = false; // This flag checks if any tile was moved or merged
+    let hasChanged = false;
 
     for (let row = 0; row < this.grid.size; row++) {
-      let currentRow = this.grid.grid[row].filter((val) => val != null); // Consolidate non-null values to the left
+      let currentRow = this.grid.grid[row].filter((val) => val != null);
       let newRow = [];
 
-      // Merge tiles
       for (let i = 0; i < currentRow.length; i++) {
         if (i < currentRow.length - 1 && currentRow[i] === currentRow[i + 1]) {
-          newRow.push(currentRow[i] * 2); // Merge tiles
-          i++; // Skip the next tile since it has been merged
-          hasChanged = true; // Indicates a change has occurred
+          newRow.push(currentRow[i] * 2);
+          i++;
+          hasChanged = true;
         } else {
           newRow.push(currentRow[i]);
         }
       }
 
-      // Fill the rest of the row with nulls
       while (newRow.length < this.grid.size) {
         newRow.push(null);
       }
 
-      // Check if new row is different from the current row
       if (!this.grid.grid[row].every((val, index) => val === newRow[index])) {
         hasChanged = true;
-        this.grid.grid[row] = newRow; // Update the row with new values
+        this.grid.grid[row] = newRow;
+      }
+    }
+
+    return hasChanged;
+  }
+
+  moveRight() {
+    let hasChanged = false;
+
+    for (let row = 0; row < this.grid.size; row++) {
+      let currentRow = [...this.grid.grid[row]]
+        .reverse()
+        .filter((val) => val != null);
+      let newRow = [];
+
+      for (let i = 0; i < currentRow.length; i++) {
+        if (i < currentRow.length - 1 && currentRow[i] === currentRow[i + 1]) {
+          newRow.push(currentRow[i] * 2);
+          i++;
+          hasChanged = true;
+        } else {
+          newRow.push(currentRow[i]);
+        }
       }
 
-      console.log(`Row ${row} after move:`, newRow); // Debugging log
+      while (newRow.length < this.grid.size) {
+        newRow.push(null);
+      }
+
+      newRow.reverse();
+
+      if (!this.grid.grid[row].every((val, index) => val === newRow[index])) {
+        hasChanged = true;
+        this.grid.grid[row] = newRow;
+      }
     }
 
-    if (hasChanged) {
-      this.addRandomTile();
-      console.log("Grid state after moving left and adding a tile:");
-      this.grid.logGrid(); // Debugging log
+    return hasChanged;
+  }
+
+  moveUp() {
+    let hasChanged = false;
+
+    for (let col = 0; col < this.grid.size; col++) {
+      let currentColumn = [];
+      for (let row = 0; row < this.grid.size; row++) {
+        currentColumn.push(this.grid.grid[row][col]);
+      }
+
+      let filteredColumn = currentColumn.filter((val) => val != null);
+      let newColumn = [];
+
+      for (let i = 0; i < filteredColumn.length; i++) {
+        if (
+          i < filteredColumn.length - 1 &&
+          filteredColumn[i] === filteredColumn[i + 1]
+        ) {
+          newColumn.push(filteredColumn[i] * 2);
+          i++;
+          hasChanged = true;
+        } else {
+          newColumn.push(filteredColumn[i]);
+        }
+      }
+
+      while (newColumn.length < this.grid.size) {
+        newColumn.push(null);
+      }
+
+      for (let row = 0; row < this.grid.size; row++) {
+        if (this.grid.grid[row][col] !== newColumn[row]) {
+          hasChanged = true;
+          this.grid.grid[row][col] = newColumn[row];
+        }
+      }
     }
 
-    return hasChanged; // Return whether any change has occurred
+    return hasChanged;
+  }
+
+  moveDown() {
+    let hasChanged = false;
+
+    for (let col = 0; col < this.grid.size; col++) {
+      let currentColumn = [];
+      for (let row = 0; row < this.grid.size; row++) {
+        currentColumn.push(this.grid.grid[row][col]);
+      }
+
+      currentColumn.reverse();
+
+      let filteredColumn = currentColumn.filter((val) => val != null);
+      let newColumn = [];
+
+      for (let i = 0; i < filteredColumn.length; i++) {
+        if (
+          i < filteredColumn.length - 1 &&
+          filteredColumn[i] === filteredColumn[i + 1]
+        ) {
+          newColumn.push(filteredColumn[i] * 2);
+          i++;
+          hasChanged = true;
+        } else {
+          newColumn.push(filteredColumn[i]);
+        }
+      }
+
+      while (newColumn.length < this.grid.size) {
+        newColumn.push(null);
+      }
+
+      newColumn.reverse();
+
+      for (let row = 0; row < this.grid.size; row++) {
+        if (this.grid.grid[row][col] !== newColumn[row]) {
+          hasChanged = true;
+          this.grid.grid[row][col] = newColumn[row];
+        }
+      }
+    }
+
+    return hasChanged;
+  }
+
+  canMove() {
+    for (let row = 0; row < this.grid.size; row++) {
+      for (let col = 0; col < this.grid.size; col++) {
+        const value = this.grid.grid[row][col];
+
+        if (value === null) return true;
+
+        if (
+          col < this.grid.size - 1 &&
+          value === this.grid.grid[row][col + 1]
+        ) {
+          return true;
+        }
+
+        if (
+          row < this.grid.size - 1 &&
+          value === this.grid.grid[row + 1][col]
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   addRandomTile() {
     const container = document.getElementById("game-container");
     let emptyCells = this.getEmptyCells();
-    console.log("Empty cells available:", emptyCells); // Log empty cells before adding a tile
 
     if (emptyCells.length > 0) {
       let randomIndex = Math.floor(Math.random() * emptyCells.length);
       let cell = emptyCells[randomIndex];
-      let value = Math.random() < 0.9 ? 2 : 4; // 90% chance for '2', 10% for '4'
-      this.grid.grid[cell.row][cell.col] = value; // Place the value in the grid
-      console.log(`Adding tile with value ${value} at position:`, cell); // Log the tile addition
+      let value = Math.random() < 0.7 ? 2 : 4;
+      this.grid.grid[cell.row][cell.col] = value;
 
       const tile = new Tile(value, cell.row, cell.col);
-      tile.renderTile(container); // Render the tile in the container
-
-      console.log("Grid state after adding a tile:");
-      this.grid.logGrid();
+      tile.renderTile(container);
     }
   }
 
   getEmptyCells() {
     let emptyCells = [];
-    // Correct access to the size property of the Grid instance
     for (let row = 0; row < this.grid.size; row++) {
       for (let col = 0; col < this.grid.size; col++) {
         if (this.grid.grid[row][col] === null) {
