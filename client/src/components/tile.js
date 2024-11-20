@@ -27,6 +27,8 @@ export default class Tile {
     this.element.style.setProperty("--col", this.col);
     this.element.classList.add(`tile-${this.value}`);
     container.appendChild(this.element);
+    const computedTransform = window.getComputedStyle(this.element).transform;
+    console.log(`Tile ${this.value} Transform:`, computedTransform);
   }
 
   /**

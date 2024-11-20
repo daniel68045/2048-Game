@@ -14,10 +14,13 @@ body {
   position: relative;
   width: 400px;
   height: 400px;
-  background-color: #bbada0; /* Grid background color */
+  background-color: #bbada0;
   padding: 10px;
   border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Shadow for aesthetics */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px; /* Space between cells */
 }
 
 .grid-cell {
@@ -35,14 +38,14 @@ body {
 
 .tile {
   position: absolute;
-  width: calc(25% - 15px); /* Adjust size for a 4x4 grid (gap included) */
-  height: calc(25% - 15px);
+  width: calc((100% / 4) - 12.5px); /* Match grid cell size */
+  height: calc((100% / 4) - 12.5px); /* Match grid cell size */
   transform: translate(
-    calc(var(--col) * 100%),
-    calc(var(--row) * 100%)
-  ); /* Correctly align tiles to rows/columns */
-  transition: transform 0.2s ease, background-color 0.2s ease;
-  background-color: #000000;
+    calc(var(--col) * 102.5px + 10px),
+    /* 100px for cell + 10px for gap */ calc(var(--row) * 102.5px + 10px)
+      /* 100px for cell + 10px for gap */
+  );
+  background-color: #eee4da;
   border-radius: 5px;
   display: flex;
   justify-content: center;
@@ -50,6 +53,7 @@ body {
   font-size: 24px;
   font-weight: bold;
   color: #776e65;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 /* Styling for different values */
