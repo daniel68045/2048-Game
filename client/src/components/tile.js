@@ -28,7 +28,9 @@ export default class Tile {
     this.element.classList.add(`tile-${this.value}`);
     container.appendChild(this.element);
     const computedTransform = window.getComputedStyle(this.element).transform;
-    console.log(`Tile ${this.value} Transform:`, computedTransform);
+    console.log(
+      `Tile rendered - Value: ${this.value}, Position: [${this.row}, ${this.col}], Connected: ${this.element.isConnected}`
+    );
   }
 
   /**
@@ -44,6 +46,9 @@ export default class Tile {
       this.element.style.setProperty("--row", this.row);
       this.element.style.setProperty("--col", this.col);
     }
+    console.log(
+      `Tile moved - New Position: [${row}, ${col}], Connected: ${this.element.isConnected}`
+    );
   }
 
   /**
