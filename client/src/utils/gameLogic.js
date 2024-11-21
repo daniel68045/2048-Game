@@ -1,8 +1,9 @@
 import Grid from "../components/grid.js";
 import Tile from "../components/tile.js";
+
 export default class GameLogic {
   constructor() {
-    this.grid = new Grid(4);
+    this.grid = new Grid(4); // Initialize a 4x4 grid
     this.init();
   }
 
@@ -48,8 +49,9 @@ export default class GameLogic {
       }
 
       if (moved) {
-        this.addRandomTile();
-        this.grid.renderGrid();
+        const container = document.getElementById("game-container");
+        this.addRandomTile(container); // Add a new tile after any move or merge
+        this.grid.renderTiles(container); // Re-render tiles
 
         if (!this.canMove()) {
           setTimeout(() => {
@@ -72,175 +74,235 @@ export default class GameLogic {
     const container = document.getElementById("game-container");
     container.innerHTML = "";
 
-    this.grid = new Grid(4);
-    this.init();
+    this.grid = new Grid(4); // Reset the grid
+    this.init(); // Restart the game
   }
 
+  // Move tiles left
   moveLeft() {
-    let hasChanged = false;
+    let hasMoved = false;
 
     for (let row = 0; row < this.grid.size; row++) {
-      let currentRow = this.grid.grid[row].filter((val) => val != null);
+      let currentRow = this.grid.grid[row].filter((tile) => tile !== null); // Remove nulls
       let newRow = [];
 
       for (let i = 0; i < currentRow.length; i++) {
-        if (i < currentRow.length - 1 && currentRow[i] === currentRow[i + 1]) {
-          newRow.push(currentRow[i] * 2);
-          i++;
-          hasChanged = true;
+        if (
+          i < currentRow.length - 1 &&
+          currentRow[i].value === currentRow[i + 1].value
+        ) {
+          // Merge tiles immediately
+          const mergedValue = currentRow[i].value * 2;
+          currentRow[i].updateValue(mergedValue); // Update value of the first tile
+          currentRow[i + 1].remove(); // Remove the second tile
+          this.grid.grid[row][i + 1] = null; // Clear the merged tile from the grid
+          newRow.push(currentRow[i]); // Add the updated tile to the new row
+          i++; // Skip the next tile (already merged)
+          hasMoved = true;
         } else {
           newRow.push(currentRow[i]);
         }
       }
 
       while (newRow.length < this.grid.size) {
-        newRow.push(null);
+        newRow.push(null); // Fill the rest with nulls
       }
 
-      if (!this.grid.grid[row].every((val, index) => val === newRow[index])) {
-        hasChanged = true;
-        this.grid.grid[row] = newRow;
+      // Update the grid and animate tiles
+      for (let col = 0; col < this.grid.size; col++) {
+        const tile = newRow[col];
+        if (tile) {
+          if (tile.col !== col || tile.row !== row) {
+            hasMoved = true; // Track movement
+          }
+          tile.updatePosition(row, col); // Trigger sliding animation
+        }
+        this.grid.grid[row][col] = tile; // Update the grid
       }
     }
 
-    return hasChanged;
+    return hasMoved;
   }
 
+  // Move tiles right
   moveRight() {
-    let hasChanged = false;
+    let hasMoved = false;
 
     for (let row = 0; row < this.grid.size; row++) {
       let currentRow = [...this.grid.grid[row]]
-        .reverse()
-        .filter((val) => val != null);
+        .filter((tile) => tile !== null)
+        .reverse(); // Reverse for rightward movement
+
       let newRow = [];
 
       for (let i = 0; i < currentRow.length; i++) {
-        if (i < currentRow.length - 1 && currentRow[i] === currentRow[i + 1]) {
-          newRow.push(currentRow[i] * 2);
-          i++;
-          hasChanged = true;
+        if (
+          i < currentRow.length - 1 &&
+          currentRow[i].value === currentRow[i + 1].value
+        ) {
+          // Merge tiles immediately
+          const mergedValue = currentRow[i].value * 2;
+          currentRow[i].updateValue(mergedValue);
+          currentRow[i + 1].remove(); // Remove the second tile
+          this.grid.grid[row][this.grid.size - 1 - i] = null; // Clear the merged tile
+          newRow.push(currentRow[i]); // Add the merged tile
+          i++; // Skip the next tile (already merged)
+          hasMoved = true;
         } else {
           newRow.push(currentRow[i]);
         }
       }
 
       while (newRow.length < this.grid.size) {
-        newRow.push(null);
+        newRow.push(null); // Fill with nulls
       }
 
-      newRow.reverse();
+      newRow.reverse(); // Reverse back to match the grid
 
-      if (!this.grid.grid[row].every((val, index) => val === newRow[index])) {
-        hasChanged = true;
-        this.grid.grid[row] = newRow;
+      // Update the grid and animate tiles
+      for (let col = 0; col < this.grid.size; col++) {
+        const tile = newRow[col];
+        if (tile) {
+          if (tile.col !== col || tile.row !== row) {
+            hasMoved = true; // Track movement
+          }
+          tile.updatePosition(row, col); // Trigger sliding animation
+        }
+        this.grid.grid[row][col] = tile; // Update the grid
       }
     }
 
-    return hasChanged;
+    return hasMoved;
   }
 
+  // Move tiles up
   moveUp() {
-    let hasChanged = false;
+    let hasMoved = false;
 
     for (let col = 0; col < this.grid.size; col++) {
       let currentColumn = [];
       for (let row = 0; row < this.grid.size; row++) {
-        currentColumn.push(this.grid.grid[row][col]);
+        if (this.grid.grid[row][col] !== null) {
+          currentColumn.push(this.grid.grid[row][col]);
+        }
       }
 
-      let filteredColumn = currentColumn.filter((val) => val != null);
       let newColumn = [];
 
-      for (let i = 0; i < filteredColumn.length; i++) {
+      for (let i = 0; i < currentColumn.length; i++) {
         if (
-          i < filteredColumn.length - 1 &&
-          filteredColumn[i] === filteredColumn[i + 1]
+          i < currentColumn.length - 1 &&
+          currentColumn[i].value === currentColumn[i + 1].value
         ) {
-          newColumn.push(filteredColumn[i] * 2);
-          i++;
-          hasChanged = true;
+          // Merge tiles immediately
+          const mergedValue = currentColumn[i].value * 2;
+          currentColumn[i].updateValue(mergedValue);
+          currentColumn[i + 1].remove(); // Remove the second tile
+          this.grid.grid[i + 1][col] = null; // Clear the merged tile
+          newColumn.push(currentColumn[i]); // Add the merged tile
+          i++; // Skip the next tile (already merged)
+          hasMoved = true;
         } else {
-          newColumn.push(filteredColumn[i]);
+          newColumn.push(currentColumn[i]);
         }
       }
 
       while (newColumn.length < this.grid.size) {
-        newColumn.push(null);
+        newColumn.push(null); // Fill with nulls
       }
 
+      // Update the grid and animate tiles
       for (let row = 0; row < this.grid.size; row++) {
-        if (this.grid.grid[row][col] !== newColumn[row]) {
-          hasChanged = true;
-          this.grid.grid[row][col] = newColumn[row];
+        const tile = newColumn[row];
+        if (tile) {
+          if (tile.row !== row || tile.col !== col) {
+            hasMoved = true; // Track movement
+          }
+          tile.updatePosition(row, col); // Trigger sliding animation
         }
+        this.grid.grid[row][col] = tile; // Update the grid
       }
     }
 
-    return hasChanged;
+    return hasMoved;
   }
 
+  // Move tiles down
   moveDown() {
-    let hasChanged = false;
+    let hasMoved = false;
 
     for (let col = 0; col < this.grid.size; col++) {
       let currentColumn = [];
       for (let row = 0; row < this.grid.size; row++) {
-        currentColumn.push(this.grid.grid[row][col]);
+        if (this.grid.grid[row][col] !== null) {
+          currentColumn.push(this.grid.grid[row][col]);
+        }
       }
 
-      currentColumn.reverse();
+      currentColumn.reverse(); // Reverse for downward movement
 
-      let filteredColumn = currentColumn.filter((val) => val != null);
       let newColumn = [];
 
-      for (let i = 0; i < filteredColumn.length; i++) {
+      for (let i = 0; i < currentColumn.length; i++) {
         if (
-          i < filteredColumn.length - 1 &&
-          filteredColumn[i] === filteredColumn[i + 1]
+          i < currentColumn.length - 1 &&
+          currentColumn[i].value === currentColumn[i + 1].value
         ) {
-          newColumn.push(filteredColumn[i] * 2);
-          i++;
-          hasChanged = true;
+          // Merge tiles immediately
+          const mergedValue = currentColumn[i].value * 2;
+          currentColumn[i].updateValue(mergedValue);
+          currentColumn[i + 1].remove(); // Remove the second tile
+          this.grid.grid[this.grid.size - 1 - i][col] = null; // Clear the merged tile
+          newColumn.push(currentColumn[i]); // Add the merged tile
+          i++; // Skip the next tile (already merged)
+          hasMoved = true;
         } else {
-          newColumn.push(filteredColumn[i]);
+          newColumn.push(currentColumn[i]);
         }
       }
 
       while (newColumn.length < this.grid.size) {
-        newColumn.push(null);
+        newColumn.push(null); // Fill with nulls
       }
 
-      newColumn.reverse();
+      newColumn.reverse(); // Reverse back to match the grid
 
+      // Update the grid and animate tiles
       for (let row = 0; row < this.grid.size; row++) {
-        if (this.grid.grid[row][col] !== newColumn[row]) {
-          hasChanged = true;
-          this.grid.grid[row][col] = newColumn[row];
+        const tile = newColumn[row];
+        if (tile) {
+          if (tile.row !== row || tile.col !== col) {
+            hasMoved = true; // Track movement
+          }
+          tile.updatePosition(row, col); // Trigger sliding animation
         }
+        this.grid.grid[row][col] = tile; // Update the grid
       }
     }
 
-    return hasChanged;
+    return hasMoved;
   }
 
+  // Check if the player can move
   canMove() {
     for (let row = 0; row < this.grid.size; row++) {
       for (let col = 0; col < this.grid.size; col++) {
-        const value = this.grid.grid[row][col];
+        const tile = this.grid.grid[row][col];
 
-        if (value === null) return true;
+        if (tile === null) return true; // Empty space exists
 
         if (
           col < this.grid.size - 1 &&
-          value === this.grid.grid[row][col + 1]
+          this.grid.grid[row][col + 1] &&
+          tile.value === this.grid.grid[row][col + 1].value
         ) {
           return true;
         }
 
         if (
           row < this.grid.size - 1 &&
-          value === this.grid.grid[row + 1][col]
+          this.grid.grid[row + 1][col] &&
+          tile.value === this.grid.grid[row + 1][col].value
         ) {
           return true;
         }
@@ -249,21 +311,22 @@ export default class GameLogic {
     return false;
   }
 
-  addRandomTile() {
-    const container = document.getElementById("game-container");
-    let emptyCells = this.getEmptyCells();
+  // Add a random tile to the grid
+  addRandomTile(container) {
+    const emptyCells = this.getEmptyCells();
 
     if (emptyCells.length > 0) {
-      let randomIndex = Math.floor(Math.random() * emptyCells.length);
-      let cell = emptyCells[randomIndex];
-      let value = Math.random() < 0.7 ? 2 : 4;
-      this.grid.grid[cell.row][cell.col] = value;
+      const randomIndex = Math.floor(Math.random() * emptyCells.length);
+      const cell = emptyCells[randomIndex];
+      const value = Math.random() < 0.7 ? 2 : 4;
 
       const tile = new Tile(value, cell.row, cell.col);
-      tile.renderTile(container);
+      this.grid.grid[cell.row][cell.col] = tile; // Add the Tile instance to the grid
+      tile.renderTile(container); // Render the tile to the DOM
     }
   }
 
+  // Find empty cells in the grid
   getEmptyCells() {
     let emptyCells = [];
     for (let row = 0; row < this.grid.size; row++) {

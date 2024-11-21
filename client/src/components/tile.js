@@ -25,7 +25,7 @@ export default class Tile {
     if (this.element) {
       this.element.style.setProperty("--row", this.row);
       this.element.style.setProperty("--col", this.col);
-      this.element.offsetHeight;
+      // this.element.offsetHeight;
     }
   }
 
@@ -34,7 +34,9 @@ export default class Tile {
 
     if (this.element) {
       this.element.textContent = this.value;
-      this.element.className = `tile tile-${this.value}`;
+
+      this.element.classList.add("tile-merged");
+      setTimeout(() => this.element.classList.remove("tile-merged"), 200);
     }
   }
 
