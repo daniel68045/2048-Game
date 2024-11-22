@@ -60,22 +60,30 @@ export default class GameLogic {
 
         setTimeout(() => {
           if (!this.canMove()) {
-            this.showGameOverModal();
+            this.triggerGameOver();
           }
           this.inputLocked = false;
-        }, 100);
+        }, 80);
       } else {
         this.inputLocked = false;
       }
     }
   }
 
+  triggerGameOver() {
+    setTimeout(() => {
+      this.showGameOverModal();
+    }, 800);
+  }
+
   showGameOverModal() {
     const modal = document.getElementById("game-over-modal");
+    modal.classList.remove("show");
     modal.classList.remove("hidden");
+
     setTimeout(() => {
       modal.classList.add("show");
-    }, 800);
+    }, 50);
   }
 
   restartGame() {
@@ -138,7 +146,7 @@ export default class GameLogic {
           setTimeout(() => {
             target.updateValue(newValue);
             source.remove();
-          }, 200);
+          }, 75);
         });
       }, 0);
     }
@@ -198,7 +206,7 @@ export default class GameLogic {
           setTimeout(() => {
             target.updateValue(newValue);
             source.remove();
-          }, 200);
+          }, 75);
         });
       }, 0);
     }
@@ -261,7 +269,7 @@ export default class GameLogic {
           setTimeout(() => {
             target.updateValue(newValue);
             source.remove();
-          }, 200);
+          }, 75);
         });
       }, 0);
     }
@@ -328,7 +336,7 @@ export default class GameLogic {
           setTimeout(() => {
             target.updateValue(newValue);
             source.remove();
-          }, 200);
+          }, 75);
         });
       }, 0);
     }
