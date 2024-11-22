@@ -15,7 +15,6 @@ export default class Tile {
     this.element.style.setProperty("--col", this.col);
     this.element.classList.add(`tile-${this.value}`);
     container.appendChild(this.element);
-    const computedTransform = window.getComputedStyle(this.element).transform;
   }
 
   updatePosition(row, col) {
@@ -25,7 +24,6 @@ export default class Tile {
     if (this.element) {
       this.element.style.setProperty("--row", this.row);
       this.element.style.setProperty("--col", this.col);
-      // this.element.offsetHeight;
     }
   }
 
@@ -38,14 +36,6 @@ export default class Tile {
       this.element.classList.add("tile-merged");
       setTimeout(() => this.element.classList.remove("tile-merged"), 200);
     }
-  }
-
-  setMerged() {
-    this.merged = true;
-  }
-
-  resetMerged() {
-    this.merged = false;
   }
 
   remove() {

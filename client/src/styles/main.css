@@ -77,9 +77,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0);
   z-index: 1000;
   font-family: "Arial", sans-serif;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.modal.show {
+  background-color: rgba(0, 0, 0, 0);
+  opacity: 1;
+  transform: scale(1);
 }
 
 .modal.hidden {
